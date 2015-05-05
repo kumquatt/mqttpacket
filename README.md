@@ -1,2 +1,2 @@
 # mqttpacket
-mqtt packet encoder, decoer
+mqtt packet encoder, decoder
