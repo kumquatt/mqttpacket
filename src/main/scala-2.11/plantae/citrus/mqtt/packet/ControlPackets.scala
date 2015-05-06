@@ -7,7 +7,7 @@ import scodec.codecs._
 sealed trait ControlPacket {
 }
 object ControlPacket {
-  implicit val discriminated: Discriminated[ControlPacket, Int] = Discriminated(uint4)
+  implicit val discriminated: Discriminated[ControlPacket, Short] = Discriminated(ushort(4))
 }
 
 case class ConnectPacket(
@@ -15,12 +15,12 @@ case class ConnectPacket(
                           variableHeader: ConnectVariableHeader,
                           clientId: String,
                           willTopic: Option[String],
-                          willMessage: Option[String],
+                          willMessage: Option[ByteVector],
                           userName: Option[String],
                           password: Option[String]
                           ) extends ControlPacket
 object ConnectPacket {
-  implicit val discriminator: Discriminator[ControlPacket, ConnectPacket, Int] = Discriminator(1)
+  implicit val discriminator: Discriminator[ControlPacket, ConnectPacket, Short] = Discriminator(1)
   implicit val codec: Codec[ConnectPacket] = (
     fixedHeaderCodec ::
       variableSizeBytes(
@@ -38,10 +38,10 @@ object ConnectPacket {
 case class ConnAckPacket(
                           fixedHeader: FixedHeader = FixedHeader(),
                           sessionPresentFlag: Boolean,
-                          returnCode: Int
+                          returnCode: Short
                           ) extends ControlPacket
 object ConnAckPacket {
-  implicit val discriminator: Discriminator[ControlPacket, ConnAckPacket, Int] = Discriminator(2)
+  implicit val discriminator: Discriminator[ControlPacket, ConnAckPacket, Short] = Discriminator(2)
   implicit val codec: Codec[ConnAckPacket] = (
     fixedHeaderCodec ::
       variableSizeBytes(
@@ -59,7 +59,7 @@ case class PublishPacket(
                         payload: ByteVector
                           ) extends ControlPacket
 object PublishPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PublishPacket, Int] = Discriminator(3)
+  implicit val discriminator: Discriminator[ControlPacket, PublishPacket, Short] = Discriminator(3)
   implicit val codec: Codec[PublishPacket] = (
     fixedHeaderCodec >>:~ {
       (fh) => variableSizeBytes(
@@ -76,7 +76,7 @@ case class PubAckPacket(
                        packetId: Int
                          ) extends ControlPacket
 object PubAckPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PubAckPacket, Int] = Discriminator(4)
+  implicit val discriminator: Discriminator[ControlPacket, PubAckPacket, Short] = Discriminator(4)
   implicit val codec: Codec[PubAckPacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -88,7 +88,7 @@ case class PubRecPacket(
                        packetId: Int
                          ) extends ControlPacket
 object PubRecPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PubRecPacket, Int] = Discriminator(5)
+  implicit val discriminator: Discriminator[ControlPacket, PubRecPacket, Short] = Discriminator(5)
   implicit val codec: Codec[PubRecPacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -100,7 +100,7 @@ case class PubRelPacket(
                        packetId: Int
                          ) extends ControlPacket
 object PubRelPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PubRelPacket, Int] = Discriminator(6)
+  implicit val discriminator: Discriminator[ControlPacket, PubRelPacket, Short] = Discriminator(6)
   implicit val codec: Codec[PubRelPacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -112,7 +112,7 @@ case class PubCompPacket(
                         packetId: Int
                           ) extends ControlPacket
 object PubCompPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PubCompPacket, Int] = Discriminator(7)
+  implicit val discriminator: Discriminator[ControlPacket, PubCompPacket, Short] = Discriminator(7)
   implicit val codec: Codec[PubCompPacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -122,10 +122,10 @@ object PubCompPacket {
 case class SubscribePacket(
                           fixedHeader: FixedHeader = FixedHeader(qos=1),
                           packetId : Int,
-                          topicFilter : List[(String, Int)]
+                          topicFilter : List[(String, Short)]
                             ) extends ControlPacket
 object SubscribePacket {
-  implicit val discriminator: Discriminator[ControlPacket, SubscribePacket, Int] = Discriminator(8)
+  implicit val discriminator: Discriminator[ControlPacket, SubscribePacket, Short] = Discriminator(8)
   implicit val codec: Codec[SubscribePacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -136,10 +136,10 @@ object SubscribePacket {
 case class SubAckPacket(
                        fixedHeader: FixedHeader = FixedHeader(),
                        packetId: Int,
-                       returnCode: List[Int]
+                       returnCode: List[Short]
                          ) extends ControlPacket
 object SubAckPacket {
-  implicit val discriminator: Discriminator[ControlPacket, SubAckPacket, Int] = Discriminator(9)
+  implicit val discriminator: Discriminator[ControlPacket, SubAckPacket, Short] = Discriminator(9)
   implicit val codec: Codec[SubAckPacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -156,7 +156,7 @@ case class UnsubscribePacket(
                             topicFilter : List[String]
                               ) extends ControlPacket
 object UnsubscribePacket {
-  implicit val discriminator: Discriminator[ControlPacket, UnsubscribePacket, Int] = Discriminator(10)
+  implicit val discriminator: Discriminator[ControlPacket, UnsubscribePacket, Short] = Discriminator(10)
   implicit val codec: Codec[UnsubscribePacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -168,7 +168,7 @@ case class UnsubAckPacket(
                          packetId: Int
                            ) extends ControlPacket
 object UnsubAckPacket {
-  implicit val discriminator: Discriminator[ControlPacket, UnsubAckPacket, Int] = Discriminator(11)
+  implicit val discriminator: Discriminator[ControlPacket, UnsubAckPacket, Short] = Discriminator(11)
   implicit val codec: Codec[UnsubAckPacket] = (
     fixedHeaderCodec ::
     variableSizeBytes(remainingLengthCodec,
@@ -179,7 +179,7 @@ case class PingReqPacket(
                         fixedHeader: FixedHeader = FixedHeader(qos=1)
                           ) extends ControlPacket
 object PingReqPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PingReqPacket, Int] = Discriminator(12)
+  implicit val discriminator: Discriminator[ControlPacket, PingReqPacket, Short] = Discriminator(12)
   implicit val codec: Codec[PingReqPacket] = (
     fixedHeaderCodec :: ignore(8)
     ).dropUnits.as[PingReqPacket]
@@ -189,7 +189,7 @@ case class PingRespPacket(
                          fixedHeader: FixedHeader = FixedHeader()
                            ) extends ControlPacket
 object PingRespPacket {
-  implicit val discriminator: Discriminator[ControlPacket, PingRespPacket, Int] = Discriminator(13)
+  implicit val discriminator: Discriminator[ControlPacket, PingRespPacket, Short] = Discriminator(13)
   implicit val codec: Codec[PingRespPacket] = (
     fixedHeaderCodec :: ignore(8)
     ).dropUnits.as[PingRespPacket]
@@ -199,7 +199,7 @@ case class DisconnectPacket(
                            fixedHeader: FixedHeader = FixedHeader()
                              ) extends ControlPacket
 object DisconnectPacket {
-  implicit val discriminator: Discriminator[ControlPacket, DisconnectPacket, Int] = Discriminator(14)
+  implicit val discriminator: Discriminator[ControlPacket, DisconnectPacket, Short] = Discriminator(14)
   implicit val codec: Codec[DisconnectPacket] = (
     fixedHeaderCodec :: ignore(8)
     ).dropUnits.as[DisconnectPacket]

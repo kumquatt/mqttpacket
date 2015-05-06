@@ -13,7 +13,7 @@ class ConnectTest extends FunSuite {
   test("encode connect packet") {
     val fh = FixedHeader()
     val cvh = ConnectVariableHeader(true, true, true, 0, true, true, 30000)
-    val connectPacket = Codec[ControlPacket].encode(ConnectPacket(fh, cvh, "client_id", Some("testWillTopic"), Some("TestWillMessage"), Some("id"), Some("password")))
+    val connectPacket = Codec[ControlPacket].encode(ConnectPacket(fh, cvh, "client_id", Some("testWillTopic"), Some(ByteVector("TestWillMessage".getBytes)), Some("id"), Some("password")))
 
     val a = connectPacket.require.toByteArray
     assert(connectPacket.isSuccessful === true)
@@ -79,14 +79,14 @@ class ConnectTest extends FunSuite {
 
     val min_willPacketFh = FixedHeader()
     val min_willPacketVh = ConnectVariableHeader(false, false, true, 2, true, false, 60)
-    val min_willPacket = ConnectPacket(min_willPacketFh, min_willPacketVh, "client_id", Some("will_topic"), Some(will_message), None, None)
+    val min_willPacket = ConnectPacket(min_willPacketFh, min_willPacketVh, "client_id", Some("will_topic"), Some(ByteVector(will_message.getBytes)), None, None)
 
     val min_will = Codec[ControlPacket].decode(Codec[ControlPacket].encode(min_willPacket).require).require.value.asInstanceOf[ConnectPacket]
 
     assert(min_will.variableHeader.willQoS === 2)
     assert(min_will.willTopic === Some("will_topic"))
     assert(min_will.variableHeader.willRetain === true)
-    assert(min_will.willMessage === Some(will_message))
+    assert(min_will.willMessage === Some(ByteVector(will_message.getBytes)))
   }
 
   test("Connack encode test") {

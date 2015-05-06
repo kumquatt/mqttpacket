@@ -11,7 +11,7 @@ class SubscribeTest extends FunSuite {
 
   test("encode/decode test of SubscribePacket") {
     val fh = FixedHeader()
-    val topicFilter = List(("testTopic", 0))
+    val topicFilter = List(("testTopic", 0.toShort))
     val subscribePacket = SubscribePacket(fh, 100, topicFilter)
 
     val packet = Codec[ControlPacket].decode(Codec[ControlPacket].encode(subscribePacket).require)
@@ -23,7 +23,7 @@ class SubscribeTest extends FunSuite {
 
   test("create/encode/decode SubscribePacket") {
     val fh = FixedHeader()
-    val topicFilter = List(("topic/1", 0), ("topic/2", 1), ("topic/3", 2), ("topic/4", 0))
+    val topicFilter = List(("topic/1", 0.toShort), ("topic/2", 1.toShort), ("topic/3", 2.toShort), ("topic/4", 0.toShort))
     val subscribePacket = SubscribePacket(fh, 40293, topicFilter)
 
     val packet = Codec[ControlPacket].decode(Codec[ControlPacket].encode(subscribePacket).require)
@@ -40,7 +40,7 @@ class SubscribeTest extends FunSuite {
 
   test("encode/decode test of SubAckPacket") {
     val fh = FixedHeader()
-    val topicFilter = List(0, 1, 2, 80)
+    val topicFilter = List(0.toShort, 1.toShort, 2.toShort, 80.toShort)
     val subackPakcet = SubAckPacket(fh, 40293, topicFilter)
 
     val packet = Codec[ControlPacket].decode(Codec[ControlPacket].encode(subackPakcet).require)
@@ -52,7 +52,7 @@ class SubscribeTest extends FunSuite {
 
   test("create/encode/decode test suback packet") {
     val fh = FixedHeader()
-    val topicFilter = List(0, 1, 2, 80)
+    val topicFilter = List(0.toShort, 1.toShort, 2.toShort, 80.toShort)
     val subackPakcet = SubAckPacket(fh, 40293, topicFilter)
 
     val packet = Codec[ControlPacket].decode(Codec[ControlPacket].encode(subackPakcet).require)
