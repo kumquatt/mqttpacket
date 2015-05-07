@@ -88,6 +88,24 @@ class PublishTest extends FunSuite {
   }
 
   test("create/encode/decode puback packet") {
+    Range(0 , Short.MaxValue * 2).foreach(x => {
+      val fh = FixedHeader()
+      val pubackPacket = PubAckPacket(fh, x)
+
+      val packet = Codec[ControlPacket].decode(Codec[ControlPacket].encode(pubackPacket).require)
+
+      assert(packet.isSuccessful === true)
+      assert(packet.require === DecodeResult(pubackPacket, bin""))
+
+      val puback = packet.require.value.asInstanceOf[PubAckPacket]
+
+      assert(puback.packetId === x)
+    })
+
+
+  }
+
+  test("create/encode/decode puback packet 0") {
     val fh = FixedHeader()
     val pubackPacket = PubAckPacket(fh, 12345)
 
@@ -100,6 +118,7 @@ class PublishTest extends FunSuite {
 
     assert(puback.packetId === 12345)
   }
+
 
   test("create/encode/decode pubrec packet") {
     val fh = FixedHeader()
