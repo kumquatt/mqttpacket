@@ -96,7 +96,7 @@ object PubRecPacket {
 }
 
 case class PubRelPacket(
-                       fixedHeader: FixedHeader = FixedHeader(),
+                       fixedHeader: FixedHeader = FixedHeader(qos=1),
                        packetId: Int
                          ) extends ControlPacket
 object PubRelPacket {
